@@ -90,13 +90,15 @@ function DashboardContent() {
   };
 
   const fetchItems = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/items/list");
-      setItems(res?.data || {});
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  try {
+    const res = await axios.get("http://localhost:5000/api/items/list");
+    const itemsData = res?.data?.data || {}; // <-- get the object of categories
+
+    setItems(itemsData); // Already grouped by category
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   const handleCategorySubmit = async (e) => {
     e.preventDefault();
@@ -181,19 +183,21 @@ function DashboardContent() {
   };
 
   const filterItems = () => {
-    const filtered = {};
-    Object.keys(items).forEach((category) => {
-      if (selectedCategory !== "all" && category !== selectedCategory) return;
-      const filteredItems = items[category]?.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (item.description || item.descriptions || "").toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      if (filteredItems?.length > 0) {
-        filtered[category] = filteredItems;
-      }
-    });
-    return filtered;
-  };
+  const filtered = {};
+  Object.keys(items || {}).forEach((category) => {
+    if (selectedCategory !== "all" && category !== selectedCategory) return;
+    const filteredItems = Array.isArray(items[category])
+      ? items[category].filter(item =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (item.description || item.descriptions || "").toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : [];
+    if (filteredItems?.length > 0) {
+      filtered[category] = filteredItems;
+    }
+  });
+  return filtered;
+};
 
   const filteredItems = filterItems();
   const totalItems = Object.values(items).flat().length;
