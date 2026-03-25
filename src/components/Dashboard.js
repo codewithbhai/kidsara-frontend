@@ -178,9 +178,9 @@ function DashboardContent() {
     setMessage({ text, type });
   };
 
-  const handleImageError = (e) => {categories
-    e.target.src = DEFAULT_IMAGE;
-  };
+ const handleImageError = (e) => {
+  e.target.src = DEFAULT_IMAGE;
+};
 
   const filterItems = () => {
   const filtered = {};
