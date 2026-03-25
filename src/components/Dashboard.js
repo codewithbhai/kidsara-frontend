@@ -178,7 +178,7 @@ function DashboardContent() {
     setMessage({ text, type });
   };
 
-  const handleImageError = (e) => {
+  const handleImageError = (e) => {categories
     e.target.src = DEFAULT_IMAGE;
   };
 
