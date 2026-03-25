@@ -6,13 +6,18 @@ import {
   Sparkles, Bell, User, Menu, Star
 } from "lucide-react";
 
+// API Base URL - Change this for production
+const API_BASE_URL = process.env.REACT_APP_API_URL || "https://kidsara-backend.onrender.com";
+// For local development, uncomment below line and comment above
+// const API_BASE_URL = "http://localhost:5000";
+
 // Theme Context
 const ThemeContext = createContext();
 
 const ThemeProvider = ({ children }) => {
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem("theme");
-    return saved ? saved === "dark" : false; // Default light mode
+    return saved ? saved === "dark" : false;
   });
 
   useEffect(() => {
@@ -80,37 +85,42 @@ function DashboardContent() {
     }
   }, [message]);
 
+  // ========== API CALLS WITH PRODUCTION URL ==========
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("https://kidsara-backend.onrender.com/api/categories/list");
+      const res = await axios.get(`${API_BASE_URL}/api/categories/list`);
+      console.log("Categories fetched:", res?.data?.data);
       setCategories(res?.data?.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching categories:", err);
+      showMessage(`Failed to load categories: ${err.response?.data?.message || err.message}`, "error");
     }
   };
 
   const fetchItems = async () => {
-  try {
-    const res = await axios.get("https://kidsara-backend.onrender.com/api/items/list");
-    const itemsData = res?.data?.data || {}; // <-- get the object of categories
-
-    setItems(itemsData); // Already grouped by category
-  } catch (err) {
-    console.error(err);
-  }
-};
+    try {
+      const res = await axios.get(`${API_BASE_URL}/api/items/list`);
+      console.log("Items fetched:", res?.data?.data);
+      const itemsData = res?.data?.data || {};
+      setItems(itemsData);
+    } catch (err) {
+      console.error("Error fetching items:", err);
+      showMessage(`Failed to load items: ${err.response?.data?.message || err.message}`, "error");
+    }
+  };
 
   const handleCategorySubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("https://kidsara-backend.onrender.com/api/categories/create", categoryForm);
+      await axios.post(`${API_BASE_URL}/api/categories/create`, categoryForm);
       showMessage("Category created successfully!", "success");
       setCategoryForm({ name: "", image: "" });
       setShowCategoryForm(false);
       fetchCategories();
     } catch (err) {
-      showMessage("Failed to create category", "error");
+      console.error("Error creating category:", err);
+      showMessage(`Failed to create category: ${err.response?.data?.message || err.message}`, "error");
     }
     setLoading(false);
   };
@@ -118,12 +128,13 @@ function DashboardContent() {
   const handleDeleteCategory = async (categoryId) => {
     if (window.confirm("Delete this category? All items will be deleted.")) {
       try {
-        await axios.delete(`https://kidsara-backend.onrender.com/api/categories/delete/${categoryId}`);
+        await axios.delete(`${API_BASE_URL}/api/categories/delete/${categoryId}`);
         showMessage("Category deleted successfully!", "success");
         fetchCategories();
         fetchItems();
       } catch (err) {
-        showMessage("Failed to delete category", "error");
+        console.error("Error deleting category:", err);
+        showMessage(`Failed to delete category: ${err.response?.data?.message || err.message}`, "error");
       }
     }
   };
@@ -133,10 +144,10 @@ function DashboardContent() {
     setLoading(true);
     try {
       if (editingItem) {
-        await axios.put(`https://kidsara-backend.onrender.com/api/items/update/${editingItem.id}`, itemForm);
+        await axios.put(`${API_BASE_URL}/api/items/update/${editingItem.id}`, itemForm);
         showMessage("Item updated successfully!", "success");
       } else {
-        await axios.post("https://kidsara-backend.onrender.com/api/items/create", itemForm);
+        await axios.post(`${API_BASE_URL}/api/items/create`, itemForm);
         showMessage("Item added successfully!", "success");
       }
       setItemForm({ name: "", image: "", description: "", sound_url: "", categoryId: "" });
@@ -144,7 +155,8 @@ function DashboardContent() {
       setEditingItem(null);
       fetchItems();
     } catch (err) {
-      showMessage(`Failed to ${editingItem ? "update" : "add"} item`, "error");
+      console.error("Error saving item:", err);
+      showMessage(`Failed to ${editingItem ? "update" : "add"} item: ${err.response?.data?.message || err.message}`, "error");
     }
     setLoading(false);
   };
@@ -165,11 +177,12 @@ function DashboardContent() {
   const handleDeleteItem = async (itemId) => {
     if (window.confirm("Delete this item?")) {
       try {
-        await axios.delete(`https://kidsara-backend.onrender.com/api/items/delete/${itemId}`);
+        await axios.delete(`${API_BASE_URL}/api/items/delete/${itemId}`);
         showMessage("Item deleted successfully!", "success");
         fetchItems();
       } catch (err) {
-        showMessage("Failed to delete item", "error");
+        console.error("Error deleting item:", err);
+        showMessage(`Failed to delete item: ${err.response?.data?.message || err.message}`, "error");
       }
     }
   };
@@ -178,26 +191,26 @@ function DashboardContent() {
     setMessage({ text, type });
   };
 
- const handleImageError = (e) => {
-  e.target.src = DEFAULT_IMAGE;
-};
+  const handleImageError = (e) => {
+    e.target.src = DEFAULT_IMAGE;
+  };
 
   const filterItems = () => {
-  const filtered = {};
-  Object.keys(items || {}).forEach((category) => {
-    if (selectedCategory !== "all" && category !== selectedCategory) return;
-    const filteredItems = Array.isArray(items[category])
-      ? items[category].filter(item =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (item.description || item.descriptions || "").toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      : [];
-    if (filteredItems?.length > 0) {
-      filtered[category] = filteredItems;
-    }
-  });
-  return filtered;
-};
+    const filtered = {};
+    Object.keys(items || {}).forEach((category) => {
+      if (selectedCategory !== "all" && category !== selectedCategory) return;
+      const filteredItems = Array.isArray(items[category])
+        ? items[category].filter(item =>
+            item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (item.description || item.descriptions || "").toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        : [];
+      if (filteredItems?.length > 0) {
+        filtered[category] = filteredItems;
+      }
+    });
+    return filtered;
+  };
 
   const filteredItems = filterItems();
   const totalItems = Object.values(items).flat().length;
