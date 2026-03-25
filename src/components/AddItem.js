@@ -25,12 +25,12 @@ export default function Dashboard() {
   }, []);
 
   const fetchCategories = async () => {
-    const res = await axios.get("http://localhost:5000/api/categories/list");
+    const res = await axios.get("https://kidsara-backend.onrender.com/api/categories/list");
     setCategories(res.data.data);
   };
 
   const fetchItems = async () => {
-    const res = await axios.get("http://localhost:5000/api/items/list");
+    const res = await axios.get("https://kidsara-backend.onrender.com/api/items/list");
     setItems(res.data.data);
   };
 
@@ -44,14 +44,14 @@ export default function Dashboard() {
 
   const createCategory = async (e) => {
     e.preventDefault();
-    await axios.post("http://localhost:5000/api/categories/create", categoryForm);
+    await axios.post("https://kidsara-backend.onrender.com/api/categories/create", categoryForm);
     setCategoryForm({ name: "", image: "" });
     fetchCategories();
   };
 
   const createItem = async (e) => {
     e.preventDefault();
-    await axios.post("http://localhost:5000/api/items/create", itemForm);
+    await axios.post("https://kidsara-backend.onrender.com/api/items/create", itemForm);
     setItemForm({ name: "", image: "", description: "", sound_url: "", categoryId: "" });
     fetchItems();
   };

@@ -82,7 +82,7 @@ function DashboardContent() {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/categories/list");
+      const res = await axios.get("https://kidsara-backend.onrender.com/api/categories/list");
       setCategories(res?.data?.data || []);
     } catch (err) {
       console.error(err);
@@ -91,7 +91,7 @@ function DashboardContent() {
 
   const fetchItems = async () => {
   try {
-    const res = await axios.get("http://localhost:5000/api/items/list");
+    const res = await axios.get("https://kidsara-backend.onrender.com/api/items/list");
     const itemsData = res?.data?.data || {}; // <-- get the object of categories
 
     setItems(itemsData); // Already grouped by category
@@ -104,7 +104,7 @@ function DashboardContent() {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("http://localhost:5000/api/categories/create", categoryForm);
+      await axios.post("https://kidsara-backend.onrender.com/api/categories/create", categoryForm);
       showMessage("Category created successfully!", "success");
       setCategoryForm({ name: "", image: "" });
       setShowCategoryForm(false);
@@ -118,7 +118,7 @@ function DashboardContent() {
   const handleDeleteCategory = async (categoryId) => {
     if (window.confirm("Delete this category? All items will be deleted.")) {
       try {
-        await axios.delete(`http://localhost:5000/api/categories/delete/${categoryId}`);
+        await axios.delete(`https://kidsara-backend.onrender.com/api/categories/delete/${categoryId}`);
         showMessage("Category deleted successfully!", "success");
         fetchCategories();
         fetchItems();
@@ -133,10 +133,10 @@ function DashboardContent() {
     setLoading(true);
     try {
       if (editingItem) {
-        await axios.put(`http://localhost:5000/api/items/update/${editingItem.id}`, itemForm);
+        await axios.put(`https://kidsara-backend.onrender.com/api/items/update/${editingItem.id}`, itemForm);
         showMessage("Item updated successfully!", "success");
       } else {
-        await axios.post("http://localhost:5000/api/items/create", itemForm);
+        await axios.post("https://kidsara-backend.onrender.com/api/items/create", itemForm);
         showMessage("Item added successfully!", "success");
       }
       setItemForm({ name: "", image: "", description: "", sound_url: "", categoryId: "" });
@@ -165,7 +165,7 @@ function DashboardContent() {
   const handleDeleteItem = async (itemId) => {
     if (window.confirm("Delete this item?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/items/delete/${itemId}`);
+        await axios.delete(`https://kidsara-backend.onrender.com/api/items/delete/${itemId}`);
         showMessage("Item deleted successfully!", "success");
         fetchItems();
       } catch (err) {
