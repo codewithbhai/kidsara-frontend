@@ -2,11 +2,5 @@
   "buildCommand": "CI=false GENERATE_SOURCEMAP=false npm run build",
   "outputDirectory": "build",
   "installCommand": "npm install --legacy-peer-deps",
-  "framework": "create-react-app",
-  "functions": {
-    "build": {
-      "memory": 3008,
-      "maxDuration": 60
-    }
-  }
+  "framework": "create-react-app"
 }
